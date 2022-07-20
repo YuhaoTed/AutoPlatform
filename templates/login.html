@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+<!--<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous"> -->
+    <link rel="stylesheet" href="/static/bs/css/bootstrap.css">
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <style>
+        .flex-container {
+
+            background-image: url("/static/login_img/bg_login.png");
+            background-repeat: no-repeat;
+            background-size:100%;
+            }
+        .login{
+            margin-top:200px;
+
+
+        }
+    </style>
+</head>
+<body class="flex-container ">
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 col-lg-offset-3" style="margin-top: 20px">
+            <img style="margin-left: 23%" src="/static/login_img/logo_login.4ec78891.png">
+        </div>
+    </div>
+</div>
+<div class="container login">
+    <div class="row">
+        <div class="col-md-6 col-lg-offset-3">
+            <div class="form-group">
+                <h1 style="text-align: center;">自动化测试管理平台</h1>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6 col-lg-offset-3">
+            <form>
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="user">用户名</label>
+                    <input type="text" id="user" class="form-control">
+                    <button type="button" class="btn btn-lg btn-link" style="font-size:10px" id="login_reg">注册用户</button>
+                </div>
+                <div class="form-group">
+                    <label for="user">密码</label>
+                    <input type="password" id="pwd" class="form-control">
+                    <button type="button" class="btn btn-lg btn-link" style="font-size:10px">忘记密码</button>
+                </div>
+                <label for="user" id="msg" style="color:red"></label>
+                <button type="button" value="登录" class="btn btn-default pull-right" id="login_btn" >登录</button>
+
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+<script>
+
+
+    $("#login_btn").click(function() {
+        $.ajax({
+            url:"/login/",
+            type:"post",
+            data:{
+                name:$("#user").val(),
+                pwd:$("#pwd").val(),
+                csrfmiddlewaretoken:$("[name='csrfmiddlewaretoken']").val()
+            },
+            success:function (data){
+                if(data.user){
+                    location.href=data.url
+                }else{
+                    $("#msg").html(data.msg).css({"color":"red"})
+                }
+            }
+
+        })
+    })
+    $('#login_reg').click(function () {
+        location.href='/reg/'
+    })
+</script>
+
+</html>

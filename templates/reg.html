@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+<!--<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous"> -->
+    <link rel="stylesheet" href="/static/bs/css/bootstrap.css">
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <style>
+        .flex-container {
+
+            background-image: url("/static/login_img/bg_login.png");
+            background-repeat: no-repeat;
+            background-size:100%;
+            }
+        .login{
+            margin-top:100px;
+        }
+        .error{
+            color: red;
+        }
+    </style>
+</head>
+<body class="flex-container ">
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 col-lg-offset-3" style="margin-top: 20px">
+            <img style="margin-left: 23%" src="/static/login_img/logo_login.4ec78891.png">
+        </div>
+    </div>
+</div>
+<div class="container login">
+    <div class="row">
+        <div class="col-md-6 col-lg-offset-3">
+            <div class="form-group">
+                <h1 style="text-align: center;">自动化测试管理平台用户注册</h1>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6 col-lg-offset-3">
+            <form id="form">
+                {% csrf_token %}
+                {% for foo in form %}
+                    <div class="form-group">
+                    <label for="user">{{ foo.label }}</label>
+                    {{ foo }}<span class="error pull-right"></span>
+                    </div>
+                {% endfor %}
+            <div class="form-group">
+                <button type="button" value="登录" class="btn pull-left" id="login_reg" >注册</button>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+<script>
+    $("#login_reg").click(function (){
+        var formdata = new FormData();
+        var request_data = $("#form").serializeArray()
+        $.each(request_data,function (index,data) {
+            formdata.append(data.name,data.value);
+        })
+        {#formdata.append('name',$('#id_name').val());#}
+        {#formdata.append('pwd',$('#id_pwd').val());#}
+        {#formdata.append('r_pwd',$('#id_r_pwd').val());#}
+        {#formdata.append('email',$('#id_email').val());#}
+        {#formdata.append('tel',$('#id_tel').val());#}
+        {#formdata.append('csrfmiddlewaretoken',$("[name='csrfmiddlewaretoken']").val());#}
+        $.ajax({
+            url:"/reg/",
+            type:"post",
+            contentType:false,
+            processData: false,
+            data:formdata,
+            success:function (data){
+                if (data.user){
+                    //注册成功
+                    location.href='/login/'
+                    $(".form-group").removeClass('has-error')
+                }else{
+                    //显示错误信息
+                    $("span.error").html("")
+
+                    $.each(data.msg,function (index,data){
+                        if(index=='__all__'){
+
+                            $("#id_r_pwd").next().html(data)
+                        }
+
+                        $('#id_'+index).next().html(data[0])
+                        $('#id_'+index).parent().addClass('has-error')
+                    })
+                }
+                console.log(data.msg)
+
+            }
+        })
+    })
+</script>
+
+</html>

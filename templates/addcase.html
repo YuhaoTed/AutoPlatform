@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>测试中心自动化测试管理平台</title>
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+{#<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">#}
+<link rel="stylesheet" href="/static/bs/css/bootstrap.css">
+<link rel="stylesheet" href="/static/bs/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
+
+<style>
+    .error{
+            color: red;
+        }
+    .topbar{
+        background-color: #2e6da4;
+        color: white
+    }
+    td{
+        text-align: center;
+    }
+    th{
+        text-align: center;
+
+    }
+</style>
+<!-- 可选的 Bootstrap 主题文件（一般不用引入） -->
+{#<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap-theme.min.css" integrity="sha384-6pzBo3FDv/PJ8r2KRkGHifhEocL+1X2rVCTTkUfGk7/0pbek5mMa1upzvWbrUbOZ" crossorigin="anonymous">#}
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
+{#    <script src="/static/bs/js/jquery-3.6.0.min.js" ></script>#}
+{#    <script src="/static/bs/js/bootstrap.js" ></script>#}
+{#    <script src="/static/bs/js/bootstrap.min.js" ></script>#}
+
+</head>
+<body>
+<!-- 导航栏 -->
+<nav class="navbar navbar-default" >
+  <div class="container-fluid topbar" >
+    <!-- Brand and toggle get grouped for better mobile display -->
+      {% csrf_token %}
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#" style="font-size: 22px;color: white">VC16自动化测试管理平台</a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+
+
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="#" style="color: white">{{ request.user.username }}</a></li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" style="color: white">下拉操作 <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="#">修改密码</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="#">注销</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+    <!-- 左侧导航栏 -->
+        <div class="col-md-2 ">
+            <div class="panel panel-primary">
+                <div class="panel-body" style="font-weight: bold">
+                    <span class="glyphicon glyphicon-tasks" style="vertical-align: -2px"></span>
+                    自动化测试用例集
+                </div>
+                <div class="panel-footer"><a href="/index">测试用例集</a></div>
+                <div class="panel-footer">我的测试用例</div>
+            </div>
+            <div class="panel panel-success">
+                <div class="panel-body" style="font-weight: bold">
+                    <span class="glyphicon glyphicon-hourglass" style="vertical-align: -2px"></span>
+                    测试用例执行配置
+                </div>
+                <div class="panel-footer">Panel footer</div>
+            </div>
+            <div class="panel panel-warning">
+                <div class="panel-body" style="font-weight: bold">
+                    <span class="glyphicon glyphicon-globe" style="vertical-align: -2px"></span>
+                    测试用例执行结果
+                </div>
+                <div class="panel-footer">Panel footer</div>
+            </div>
+        </div>
+    <!-- 右侧数据 -->
+        <div class="modal fade loading" id="sdsModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false"  data-backdrop="static" data-keyboard="false">
+            <div>
+                <label>SDS语料加载中</label>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="page-header ">
+                <h2>添加测试用例  ID:{{ case_id_new }}</h2>
+                <label style="font-weight: bold;font-size: 25px">{{ proj_name }}/{{ func_name }}/{{ feature_name }}</label>
+
+                <div class="button-group pull-right">
+                        <button type="button" class="btn btn-primary" style="margin-right: 10px;width: 120px" id="add_func" >添加用例</button>
+                        <button type="button" class="btn btn-success" style="width: 120px" >
+                        同步
+                        </button>
+                </div>
+            </div>
+        <!-- 两个按钮 -->
+            <div class="row">
+
+            </div>
+        <!-- 详情 -->
+            <div class="row">
+                <h3 style="font-weight: bold">详情</h3>
+                <div class="col-lg-5">
+                    <form>
+                        {% csrf_token %}
+                            <div class="form-group">
+                                <label for="user">{{ form.name.label }}</label>
+                                {{ form.name }}
+                                <span class="error pull-right"></span>
+                            </div>
+                            <div class="col-lg-3">
+                                <ul class="list-group "style="list-style-type: none; font-weight:bold;">
+                                    <li>项目:</li>
+                                    <li>功能:</li>
+                                    <li>Feature:</li>
+                                    <li>创建人:</li>
+                                </ul>
+                            </div>
+                            <div class="col-lg-3 col-lg-offset-2">
+                                <ul class="list-group " style="list-style-type: none">
+                                    <li>{{ proj_name }}</li>
+                                    <li>{{ func_name }}</li>
+                                    <li>{{ feature_name }}</li>
+                                    <li>{{ request.user }}</li>
+                                </ul>
+                            </div>
+
+                    </form>
+                </div>
+                <div class="col-lg-5 col-lg-offset-1">
+                    <div class="col-lg-3">
+                                <ul class="list-group "style="list-style-type: none; font-weight:bold;">
+
+                                    <li>用例状态</li>
+                                    <li style="padding-top: 20px">用例验证</li>
+                                </ul>
+                            </div>
+                            <div class="col-lg-3 col-lg-offset-2">
+                                <ul class="list-group " style="list-style-type: none">
+                                    <li ><span class="label label-warning" >编写状态</span></li>
+                                    <li style="padding-top: 20px"><span class="label label-danger btn" id="veri" >单条验证</span></li>
+                                </ul>
+                            </div>
+                </div>
+            </div>
+        <!-- 描述 -->
+            <div class="row">
+                <h3 style="font-weight: bold">描述</h3>
+            </div>
+        <!-- 描述 -->
+            <div class="row">
+                <div class="col-lg-9">
+                    <div class="form-group">
+                                <label for="user">{{ form.desc.label }}</label>
+                                {{ form.desc }}
+                                <span class="error pull-right"></span>
+                            </div>
+                </div>
+            </div>
+        <!-- 详细步骤 -->
+            <div class="row">
+                <h3 style="font-weight: bold">详细步骤</h3>
+                <div class="col-lg-9">
+{#                    <p style="border-style: solid; border-width: thin;border-color: DarkGray  ">#}
+{#                        <br/><br/>#}
+{##}
+{#                    </p>#}
+                    <div id='step_1' style="border: darkgray 1px solid;width: 100%;height: auto;border-radius:5px;display: inline-block;margin-bottom: 20px">
+{#                        添加/删除#}
+                        <div style="display: inline-block; padding-left: 2px;padding-top: 2px;width: 100%">
+                            <label>步骤1</label>
+                            <span class="pull-right">
+                                <a class="btn btn-link add-step" id="del_function" ><span class="glyphicon glyphicon-plus"></span></a>
+                                <a class="btn btn-link delete-step" id="upd_function"><span class="glyphicon glyphicon-minus"></span></a>
+                            </span>
+                        </div>
+
+                        <!--模拟操作-->
+                        <div  style="display: inline-block; padding-left: 10px;width: 90%;padding-right:10px;padding-bottom: 10px" >
+                            <label for="add/">基础操作&nbsp&nbsp</label>
+                            <select class="manu_sel" style="width: 40%;height:30px;margin-left: 16px;border-color: darkgray;border-radius: 2px" id="manu_sel_1">
+                              <option value="1">点击固定坐标</option>
+                              <option value="2">滑动坐标</option>
+                              <option value="3">点击Menu</option>
+                              <option value="4">进入APP</option>
+                              <option value="5">语音输入</option>
+                              <option value="6">等待操作</option>
+                              <option value="7">点击位置</option>
+                              <option selected value="0">无</option>
+                            </select>
+                        </div>
+                        <!--检测-->
+                        <div  style="display: inline-block; padding-left: 10px;width: 90%;padding-right:10px;padding-bottom: 10px">
+                            <label for="add/">检测操作&nbsp&nbsp</label>
+                            <select class="rec_sel" style="width: 40%;height:30px;margin-left: 16px;border-color: darkgray;border-radius: 2px" id="rec_sel_1">
+                              <option value="1">文字检测</option>
+                              <option value="2">模板匹配</option>
+                              <option value="3">二维码检测</option>
+                              <option value="4">POP UP 检测</option>
+                              <option selected value="0">无</option>
+                            </select>
+                        </div>
+                        <!--中间值-->
+                        <div  style="display: inline-block; padding-left: 10px;width: 90%;padding-right:10px;padding-bottom: 10px">
+                            <label for="add/" >中间值</label>
+                            <select class="mid_sel" id="mid_sel_1" style="margin-left: 38px; width: 40%;height:30px;border-color: darkgray;border-radius: 2px">
+                              <option value="1">文字记录</option>
+                              <option value="2">位置记录</option>
+                              <option selected value="0">无</option>
+                            </select>
+
+                        </div>
+                        <!--中间值比较-->
+                        <div  style="display: inline-block; padding-left: 10px;width: 90%;padding-right:10px;padding-bottom: 10px">
+                            <label for="add/">中间值比较</label>
+                            <select class="mid_comp"  id="mid_comp_1" style="width: 40%;height:30px;margin-left: 10px;border-color: darkgray;border-radius: 2px">
+                              <option disabled value="1">文字比较</option>
+                              <option disabled value="2">位置比较</option>
+                              <option selected value="0">无</option>
+                            </select>
+                        </div>
+                        <!--循环次数设置-->
+                        <div  style="display: inline-block; padding-left: 10px;width: 90%;padding-right:10px;padding-bottom: 10px">
+{#                            <label for="add/">循环设置</label>#}
+{#                            <input id="loop_1" type="text" value="1" style="margin-left: 25px">#}
+                            <label for="add/">等待直到</label>
+                            <select id="loop_type_1" style="margin-left: 25px; width: 40%;height:30px;border-color: darkgray;border-radius: 2px">
+                              <option selected value="1">否</option>
+                              <option value="2">是</option>
+                            </select>
+                        </div>
+                        <!--步骤描述-->
+                        <div style="display: inline-block; padding-left: 10px;width: 100%;padding-right:10px;padding-bottom: 10px">
+                            <label for="add/">步骤描述</label>
+                            <input type="text" class="form-control" name="name" id="desc-1">
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <select id="selectSf" class="selectpicker"  data-hide-disabled="true" data-size="5" data-live-search="true" >
+       <option value="00000000" selected="">alphabet</option>
+       <option value="10000000">aa</option>
+       <option >bbb</option>
+       <option value="20000000">cccc</option>
+       <option value="30000000">ddddd</option>
+       <option value="40000000">eeeeee</option>
+    </select>
+<div style="height: 80px"></div>
+</body>
+
+</html>
+
+<script>
+    //操作记录值
+
+
+    var step_midval = new Array()
+    var comp_midval = new Array()
+
+    step_midval.push(0)
+    $(document).ready(function(){
+         {#$('.selectpicker').selectpicker('hide')#}
+    });
+
+    $('#veri').click(function () {
+        
+    })
+    
+    /**
+     * 添加步骤
+     *
+     */
+
+    $(document).on("click",'.add-step',function () {
+    //添加步骤
+        var step_div = $(this).parent().parent().parent()
+        {#var New_Step = $('<div>').css({'border': 'darkgray 1px solid','width': '100%','height': 'auto','border-radius':'5px','display': 'inline-block','margin-top':'5px'})#}
+        {#var New_Step = $('<div>').css({'border': 'darkgray 1px solid','width': '100%','height': 'auto','border-radius':'5px','display': 'inline-block','margin-top':'5px'})#}
+        var New_Step = step_div.clone(true)
+        var id_new = parseInt(step_div.attr('id').split('_')[1])+1
+        step_midval.splice(id_new-1,0,0)
+        New_Step.attr('id','step_'.concat(id_new))
+        //修改现在的步骤数
+        New_Step.children().first().children().first().html('步骤'.concat(id_new))
+        //修改所有的ID值
+        New_Step.children().eq(1).children().eq(1).attr('id','manu_sel_'.concat(id_new))
+        New_Step.children().eq(2).children().eq(1).attr('id','rec_sel_'.concat(id_new))
+        New_Step.children().eq(3).children().eq(1).attr('id','mid_sel_'.concat(id_new))
+        New_Step.children().eq(4).children().eq(1).attr('id','mid_comp_'.concat(id_new))
+        {#New_Step.children().eq(5).children().eq(1).attr('id','loop_'.concat(id_new))#}
+        New_Step.children().eq(5).children().eq(1).attr('id','loop_type_'.concat(id_new))
+        New_Step.children().eq(6).children().eq(1).attr('id','desc_'.concat(id_new))
+
+        //如果后面加过东西全部去掉
+        New_Step.children().eq(1).children().eq(1).nextAll().remove()
+        New_Step.children().eq(2).children().eq(1).nextAll().remove()
+        New_Step.children().eq(3).children().eq(1).nextAll().remove()
+        New_Step.children().eq(4).children().eq(1).nextAll().remove()
+
+
+        //将后面的id以及名称全加1
+        step_div_next = $(step_div).nextAll()
+        var i=0,len=step_div_next.length;
+        if(len>0) {
+            for (; i < len;) {
+                var id_new_next = parseInt($(step_div_next[i]).attr('id').split('_')[1])+1
+                $(step_div_next[i]).attr('id','step_'.concat(id_new_next))
+                $(step_div_next[i]).children().first().children().first().html('步骤'.concat(id_new_next))
+                $(step_div_next[i]).children().eq(1).children().eq(1).attr('id','manu_sel_'.concat(id_new_next))
+                $(step_div_next[i]).children().eq(2).children().eq(1).attr('id','rec_sel_'.concat(id_new_next))
+                $(step_div_next[i]).children().eq(3).children().eq(1).attr('id','mid_sel_'.concat(id_new_next))
+                $(step_div_next[i]).children().eq(4).children().eq(1).attr('id','mid_comp_'.concat(id_new_next))
+                {#$(step_div_next[i]).children().eq(5).children().eq(1).attr('id','loop_'.concat(id_new_next))#}
+                $(step_div_next[i]).children().eq(5).children().eq(1).attr('id','loop_type_'.concat(id_new_next))
+                $(step_div_next[i]).children().eq(6).children().eq(1).attr('id','desc_'.concat(id_new_next))
+                i++
+            }
+        }
+
+        //所有的删除按键取消disabl 属性
+        step_div.after(New_Step)
+        $('.delete-step').removeClass('disabled')
+        //修改比较值的不可勾选属性
+        $("#mid_comp_".concat(id_new)).children().first().attr('disabled','true')
+        $("#mid_comp_".concat(id_new)).children().first().next().attr('disabled','true')
+        console.log(step_midval)
+        //记录最后一个文字记录的步骤
+        var last_text_step
+        for(i in step_midval){
+            if(step_midval[i]==1){
+                last_text_step = parseInt(i)+1
+            }
+        }
+
+
+        //同时遍历后面的步骤记录值，如果有变化，执行更新操作
+        $(".text_comp_step").each(function () {
+            if(parseInt(id_new)<=last_text_step){
+                $(this).children().each(function () {
+                    //1.如果选项值比新增ID大，就更新加1 value以及html
+                    if(parseInt($(this).attr('value'))>=id_new){
+                        var val_tmp = parseInt($(this).attr('value'))
+                        $(this).attr('value',val_tmp+1)
+                        $(this).html(val_tmp+1)
+                    }
+
+                })
+
+            }
+
+
+        })
+        {#$(".pos_comp_step")#}
+        //记录最后一个位置记录的步骤
+        var last_pos_step
+        for(i in step_midval){
+            if(step_midval[i]==2){
+                last_pos_step = parseInt(i)+1
+            }
+        }
+
+
+        //同时遍历后面的步骤记录值，如果有变化，执行更新操作
+        $(".pos_comp_step").each(function () {
+            if(parseInt(id_new)<=last_pos_step){
+                $(this).children().each(function () {
+                    //1.如果选项值比新增ID大，就更新加1 value以及html
+                    if(parseInt($(this).attr('value'))>=id_new){
+                        var val_tmp = parseInt($(this).attr('value'))
+                        $(this).attr('value',val_tmp+1)
+                        $(this).html(val_tmp+1)
+                    }
+                })
+            }
+        })
+
+    })
+    $(document).on('click','.delete-step',function () {
+    //删除步骤
+        var step_div = $(this).parent().parent().parent()
+        step_div_next = $(step_div).nextAll()
+        var i=0,len=step_div_next.length;
+        var sib_len = $(step_div).siblings().length
+
+        if(sib_len==0){
+            $('.delete-step').addClass('disabled')
+        }
+        else{
+            //后面存在div，删除div，然后所有id步骤名称做改变
+            var id = parseInt(step_div.attr('id').split('_')[1])
+            //删除对应的存储值
+            step_midval.splice(id-1,1)
+            for (;i<len;){
+
+                var id_new_next = parseInt($(step_div_next[i]).attr('id').split('_')[1])-1
+
+                $(step_div_next[i]).attr('id','step_'.concat(id_new_next))
+                $(step_div_next[i]).children().first().children().first().html('步骤'.concat(id_new_next))
+                $(step_div_next[i]).children().eq(3).children().eq(1).attr('id','mid_sel_'.concat(id_new_next))
+                $(step_div_next[i]).children().eq(4).children().eq(1).attr('id','mid_comp_'.concat(id_new_next))
+                $(step_div_next[i]).children().eq(1).children().eq(1).attr('id','manu_sel_'.concat(id_new_next))
+                $(step_div_next[i]).children().eq(2).children().eq(1).attr('id','rec_sel_'.concat(id_new_next))
+                {#$(step_div_next[i]).children().eq(5).children().eq(1).attr('id','loop_'.concat(id_new_next))#}
+                $(step_div_next[i]).children().eq(5).children().eq(1).attr('id','loop_type_'.concat(id_new_next))
+                $(step_div_next[i]).children().eq(6).children().eq(1).attr('id','desc_'.concat(id_new_next))
+                i++
+            }
+            step_div.remove()
+
+        }
+
+
+
+    })
+    $(document).on('change','.manu_sel',function(){
+    //控制方式的选择
+        var id = parseInt($(this).parent().parent().attr('id').split('_')[1])
+        if($(this).get(0).selectedIndex==0){
+            $(this).nextAll().remove()
+            $(this).parent().append($('<label>').css({'margin-left':'50px'}).html('坐标值X'),$('<input>').attr({'id':'point_x_'.concat(id),'type':'number'}).addClass('number').css({'width':'10%'}),$('<label>').html('坐标值Y'),$('<input>').attr({'id':'point_y_'.concat(id),'type':'number'}).addClass('text').css({'width':'10%'}))
+        }else if($(this).get(0).selectedIndex==1){
+            $(this).nextAll().remove()
+            var div_area = $('<div>')
+            div_area.append(div_area.append($('<label>').html('识别区域').css({'margin-right':'25px'})))
+            div_area.append($('<label>').html('起点X'),$('<input>').addClass('text').attr({'id':'start_x_'.concat(id),'type':'number'}).css({'width':'10%'}),$('<label>').html('起点Y'),$('<input>').attr({'id':'start_y_'.concat(id),'type':'number'}).addClass('text').css({'width':'10%'}),
+            $('<label>').html('终点X'),$('<input>').attr({'id':'end_x_'.concat(id),'type':'number'}).addClass('text').css({'width':'10%'}),$('<label>').html('终点Y'),$('<input>').attr({'id':'end_y_'.concat(id),'type':'number'}).addClass('text').css({'width':'10%'}))
+            div_area.css({'width':'100%','margin-left':'20px'})
+
+            $(this).parent().append($('<br/><br/>'),div_area)
+        }else if($(this).get(0).selectedIndex==7||$(this).get(0).selectedIndex==2){
+            $(this).nextAll().remove()
+        }else if($(this).get(0).selectedIndex==3){
+            $(this).nextAll().remove()
+            $(this).parent().append($('<label>').css({'margin-left':'50px'}).html('APP名称'),$('<input>').attr('id','appname_'.concat(id)).addClass('text').css({'width':'20%'}))
+        }else if($(this).get(0).selectedIndex==4){
+            $(this).nextAll().remove()
+            $(this).nextAll().remove()
+            $(this).parent().append($('<label>').html('输入语料').css({'margin-left':'50px'}))
+
+            var SDS_select = $('<select>').attr('id','sds_'.concat(id)).addClass("selectpicker").attr({'data-hide-disabled':'true',"data-size":"5",'data-live-search':'true',"display":"true"})
+            $.ajax({
+                url:"/sdslist/",
+                type:"post",
+                data:{
+                    'csrfmiddlewaretoken':$("[name='csrfmiddlewaretoken']").val(),
+                },
+                success:function (data) {
+                    sds_list = JSON.parse(data)
+                    $('#sdsModal').modal('show')
+                    for(i in sds_list){
+                        SDS_select.append($('<option>').html(sds_list[i][0]+'-'+sds_list[i][2]+'-'+sds_list[i][1]).attr('value',sds_list[i][0]+'-'+sds_list[i][1]))
+
+                    }
+                    SDS_select.selectpicker( 'refresh' )
+
+                    $('#sdsModal').modal('hide')
+                }
+            })
+            $(this).parent().append(SDS_select)
+            SDS_select.selectpicker( 'toggle' )
+        }else if($(this).get(0).selectedIndex==5){
+            //等待操作
+            $(this).nextAll().remove()
+            $(this).parent().append($('<label>').css({'margin-left':'50px'}).html('等待时间'),$('<input>').attr({'id':'wait_'.concat(id),'type':'number'}).attr('type','number').css({'width':'10%'}),$('<label>').html('秒'))
+        }else if($(this).get(0).selectedIndex==6){
+            $(this).nextAll().remove()
+            var div_area = $('<div>')
+            div_area.append($('<label>').html('位置种类').css({'margin-right':'25px'}))
+            var select_comp = $('<select>').attr('id','manu_pos_kind_'.concat(id)).addClass('manu_kind').append($('<option>').html('文字位置').attr('value','1'),$('<option>').html('图标位置').attr('value','2'))
+            var mid_label = $('<label>').html('文字').css({'margin-left':'25px'})
+            var mid_text =$('<input>').attr('id','manu_pos_text_'.concat(id)).addClass("text").css({"margin-left":"10px"})
+            div_area.append(select_comp,mid_label,mid_text)
+            div_area.css({'width':'100%','margin-left':'20px'})
+            $(this).parent().append($('<br/><br/>'),div_area)
+        }
+    })
+
+    $(document).on('change','.rec_sel',function(){
+//识别区域选择控制
+        var id = parseInt($(this).parent().parent().attr('id').split('_')[1])
+        if($(this).get(0).selectedIndex==1){
+            $(this).nextAll().remove()
+
+            var mid_comp = $('<select>').attr('id','icon_recognize_contain_'.concat(id)).css({'margin-left': '5px'}).append($('<option>').html('包含').attr('value',1), $('<option>').html('不包含').attr('value',2))
+            $(this).parent().append(mid_comp)
+            $(this).parent().append($('<label>').css({'margin-left':'10px'}).html('选择识别图标'))
+            var Icon_select = $('<select>').attr('id','icon_recognize_'.concat(id)).addClass("selectpicker icon-sel").attr({'data-hide-disabled':'true',"data-size":"5",'data-live-search':'true',"display":"true"})
+            $.ajax({
+                url:"/iconlist/",
+                type:"post",
+                data:{
+                    'csrfmiddlewaretoken':$("[name='csrfmiddlewaretoken']").val(),
+                },
+                success:function (data) {
+                    icon_list = JSON.parse(data)
+                    for(i in icon_list){
+                        Icon_select.append($('<option>').html(icon_list[i][0]+'-'+icon_list[i][2]+'-'+icon_list[i][1]).val(icon_list[i][0]+'-'+icon_list[i][3]))
+                        Icon_select.selectpicker( 'refresh' )
+                    }
+                }
+            })
+            $(this).parent().append(Icon_select)
+            Icon_select.selectpicker( 'toggle' )
+        }else if($(this).get(0).selectedIndex==0){
+            $(this).nextAll().remove()
+            var div_area = $('<div>')
+            div_area.append(div_area.append($('<label>').html('识别区域').css({'margin-right':'25px'})))
+            div_area.append($('<label>').html('左上点X'),$('<input>').attr({'id':'left_x_'.concat(id),'type':'number'}).addClass('text').css({'width':'10%'}),$('<label>').html('左上点Y'),$('<input>').attr({'id':'left_y_'.concat(id),'type':'number'}).addClass('text').css({'width':'10%'}),
+            $('<label>').html('右下点X'),$('<input>').attr({'id':'right_x_'.concat(id),'type':'number'}).addClass('text').css({'width':'10%'}),$('<label>').html('右下点Y'),$('<input>').attr({'id':'right_y_'.concat(id),'type':'number'}).addClass('text').css({'width':'10%'}))
+            div_area.append($('<br/>'),$('<label>').html('操作'))
+            var mid_comp = $('<select>').attr('id','text_recognize_contain_'.concat(id)).css({'margin-left': '25px'}).append($('<option>').html('包含').attr('value',1), $('<option>').html('不包含').attr('value',2))
+            div_area.append(mid_comp)
+            div_area.append(div_area.append($('<label>').html('文字列表').css({'margin-left':'25px'})))
+            div_area.append(div_area.append($('<input>').attr('id','text_recognize_comp_'.concat(id)).attr('type','text').css({'margin-left':'25px'})))
+            div_area.css({'width':'100%','margin-left':'20px'})
+
+            $(this).parent().append($('<br/><br/>'),div_area)
+        }else if($(this).get(0).selectedIndex==4||$(this).get(0).selectedIndex==2){
+            $(this).nextAll().remove()
+        }else if($(this).get(0).selectedIndex==3){
+            $(this).nextAll().remove()
+            $(this).parent().append($('<label>').css({'margin-left':'50px'}).html('点击Icon名称'),$('<input>').attr('id','popup_action_'.concat(id)).addClass('text').css({'width':'20%'}))
+        }
+    })
+    /*
+    * 中间值选择
+    *
+    * 1. 选择文字记录，添加DOM，通知禁用位置比较
+    *
+    * 2. 选择模板记录，同时金庸文字比较
+    *
+    * */
+    $(document).on("change",'.mid_sel',function (){
+        var id = $(this).attr('id').split('_')[2]
+        if($(this).get(0).selectedIndex==0){
+            $(this).nextAll().remove()
+            var div_area = $('<div>')
+            div_area.append(div_area.append($('<label>').html('识别区域').css({'margin-right':'25px'})))
+            div_area.append($('<label>').html('左上点X'),$('<input>').attr({'id':'rec_left_x_'.concat(id),'type':'number'}).addClass('text').css({'width':'10%'}),$('<label>').html('左上点Y'),$('<input>').attr({'id':'rec_left_y_'.concat(id),'type':'number'}).addClass('text').css({'width':'10%'}),
+            $('<label>').html('右下点X'),$('<input>').attr({'id':'rec_right_x_'.concat(id),'type':'number'}).addClass('text').css({'width':'10%'}),$('<label>').html('右下点Y'),$('<input>').attr({'id':'rec_right_y_'.concat(id),'type':'number'}).addClass('text').css({'width':'10%'}))
+            div_area.css({'width':'100%','margin-left':'20px'})
+
+            $(this).parent().append($('<br/><br/>'),div_area)
+            //同时禁用位置比较
+            $("#mid_comp_".concat(id)).children().first().next().attr('disabled','true')
+            $("#mid_comp_".concat(id)).children().first().removeAttr('disabled')
+            $("#mid_comp_".concat(id)).val('无')
+            $("#mid_comp_".concat(id)).nextAll().remove()
+            //记录值 文字比较记录1
+            step_midval[id-1] = 1
+            //刷新后面的所有步骤，全是无
+            $(".mid_comp").each(function () {
+                if(parseInt(id)<parseInt($(this).attr('id').split('_')[2])){
+                    $(this).val('无')
+                    $(this).nextAll().remove()
+                    $(this).children().first().removeAttr('disabled')
+                    $(this).children().first().next().removeAttr('disabled')
+                }
+
+            })
+
+        }else if($(this).get(0).selectedIndex==2){
+            $(this).nextAll().remove()
+            $("#mid_comp_".concat(id)).children().first().next().attr('disabled','true')
+            $("#mid_comp_".concat(id)).children().first().attr('disabled','true')
+            step_midval[id-1] = 0
+            //刷新后面的所有步骤，全是无
+            $(".mid_comp").each(function () {
+                if(parseInt(id)<parseInt($(this).attr('id').split('_')[2])){
+                    $(this).val('无')
+                    $(this).nextAll().remove()
+                    $(this).children().first().removeAttr('disabled')
+                    $(this).children().first().next().removeAttr('disabled')
+                }
+
+            })
+
+
+        }else if($(this).get(0).selectedIndex==1){
+            $(this).nextAll().remove()
+            var div_area = $('<div>')
+            div_area.append($('<label>').html('位置种类').css({'margin-right':'25px'}))
+            var select_comp = $('<select>').attr('id','rec_pos_kind_'.concat(id)).addClass('record_kind').append($('<option>').html('文字位置').attr('value','1'),$('<option>').html('图标位置').attr('value','2'))
+            var mid_label = $('<label>').html('文字').css({'margin-left':'25px'})
+            var mid_text =$('<input>').attr('id','rec_pos_text_'.concat(id)).addClass("text").css({"margin-left":"10px"})
+            div_area.append(select_comp,mid_label,mid_text)
+            div_area.css({'width':'100%','margin-left':'20px'})
+            $(this).parent().append($('<br/><br/>'),div_area)
+            //同时禁用文字比较
+            $("#mid_comp_".concat(id)).children().first().attr('disabled','true')
+            $("#mid_comp_".concat(id)).children().first().next().removeAttr('disabled')
+            $("#mid_comp_".concat(id)).val('无')
+            $("#mid_comp_".concat(id)).nextAll().remove()
+            //记录值 文字比较记录2
+            step_midval[id-1] = 2
+            //刷新后面的所有步骤，全是无
+            $(".mid_comp").each(function () {
+                if(parseInt(id)<parseInt($(this).attr('id').split('_')[2])){
+                    $(this).val('无')
+                    $(this).nextAll().remove()
+                    $(this).children().first().removeAttr('disabled')
+                    $(this).children().first().next().removeAttr('disabled')
+                }
+
+            })
+
+        }
+
+    })
+    //检测：模板变化添加图片
+     $(document).on('change','select.icon-sel',function(){
+         $(this).parent().nextAll().remove()
+         $(this).parent().parent().append($('<img>').css({"width":"50px","height":"50px","margin-left":"3px"}).attr({'src':'/media/'+$(this).selectpicker("val").split('-')[1]}))
+     })
+    //记录值变化：文字，图片
+     $(document).on('change','select.record_kind',function(){
+         var id = $(this).attr('id').split('_')[3]
+         if($(this).get(0).selectedIndex==0){
+            $(this).nextAll().remove()
+             var mid_label = $('<label>').html('文字').css({'margin-left':'25px'})
+             var mid_text =$('<input>').attr('id','rec_pos_text_'.concat(id)).addClass("text").css({"margin-left":"10px"})
+             $(this).parent().append(mid_label,mid_text)
+
+         }else if($(this).get(0).selectedIndex==1){
+            $(this).nextAll().remove()
+             $(this).parent().append($('<label>').css({'margin-left':'50px',"margin-right":"10px"}).html('选择识别图标'))
+            var Icon_select = $('<select>').attr('id','rec_pos_icon_'.concat(id)).css({"margin-right":"50px"}).addClass("selectpicker icon-sel").attr({'data-hide-disabled':'true',"data-size":"5",'data-live-search':'true',"display":"true"})
+            $.ajax({
+                url:"/iconlist/",
+                type:"post",
+                data:{
+                    'csrfmiddlewaretoken':$("[name='csrfmiddlewaretoken']").val(),
+                },
+                success:function (data) {
+                    icon_list = JSON.parse(data)
+                    for(i in icon_list){
+                        console.log(icon_list[i][3])
+                        Icon_select.append($('<option>').html(icon_list[i][0]+'-'+icon_list[i][2]+'-'+icon_list[i][1]).val(icon_list[i][0]+'-'+icon_list[i][3]))
+
+                    }
+                    Icon_select.selectpicker( 'refresh' )
+                }
+            })
+            $(this).parent().append(Icon_select)
+            Icon_select.selectpicker( 'toggle' )
+
+         }
+     })
+    //manu_kind
+    //记录值变化：文字，图片
+     $(document).on('change','select.manu_kind',function(){
+         var id = $(this).attr('id').split('_')[3]
+         if($(this).get(0).selectedIndex==0){
+            $(this).nextAll().remove()
+             var mid_label = $('<label>').html('文字').css({'margin-left':'25px'})
+             var mid_text =$('<input>').attr('id','manu_pos_text_'.concat(id)).addClass("text").css({"margin-left":"10px"})
+             $(this).parent().append(mid_label,mid_text)
+
+         }else if($(this).get(0).selectedIndex==1){
+            $(this).nextAll().remove()
+             $(this).parent().append($('<label>').css({'margin-left':'50px',"margin-right":"10px"}).html('选择识别图标'))
+            var Icon_select = $('<select>').attr('id','manu_pos_icon_'.concat(id)).css({"margin-right":"50px"}).addClass("selectpicker icon-sel").attr({'data-hide-disabled':'true',"data-size":"5",'data-live-search':'true',"display":"true"})
+            $.ajax({
+                url:"/iconlist/",
+                type:"post",
+                data:{
+                    'csrfmiddlewaretoken':$("[name='csrfmiddlewaretoken']").val(),
+                },
+                success:function (data) {
+                    icon_list = JSON.parse(data)
+                    for(i in icon_list){
+                        console.log(icon_list[i][3])
+                        Icon_select.append($('<option>').html(icon_list[i][0]+'-'+icon_list[i][2]+'-'+icon_list[i][1]).val(icon_list[i][0]+'-'+icon_list[i][3]))
+
+                    }
+                    Icon_select.selectpicker( 'refresh' )
+                }
+            })
+            $(this).parent().append(Icon_select)
+            Icon_select.selectpicker( 'toggle' )
+
+         }
+     })
+
+
+    /*
+    * 中间值比较变化
+    * 1. 必须本步骤有文字记录或者模板记录才能进行比较
+    * 2. 如果只有一个文字记录或者模板不允许比较
+    * 3. 文字记录对应文字比较
+    * 4. 满足条件 dom操作
+    * 5. 还有一个关键问题，需要记录步骤
+    *
+    * */
+     $(document).on('change','.mid_comp',function(){
+         console.log(step_midval)
+         var id = $(this).attr('id').split('_')[2]
+         Text_count = 0
+         Icon_count = 0
+         Text_array = new Array()
+         Icon_array = new Array()
+         for (var i=0;i<id;i++){
+
+             if(step_midval[i]==1){
+                 Text_count+=1
+                 Text_array.push(i)
+             }
+             if(step_midval[i]==2){
+                 Icon_count+=1
+                 Icon_array.push(i)
+             }
+         }
+
+
+        if($(this).get(0).selectedIndex==0) {
+            record_type = $(this).parent().prev().children().first().next().val()
+            if(Text_count==1 || record_type!='1'){
+             $(this).nextAll().remove()
+             console.log('zhiyou1',Text_count)
+             //禁用文字比较
+             $("#mid_comp_".concat(id)).children().first().attr('disabled','true')
+             $("#mid_comp_".concat(id)).val('无')
+
+         }else {
+                console.log('T选择文字比较')
+                $(this).nextAll().remove()
+                //选中文字比较
+                var mid_label = $('<label>').html('本步骤记录值').css({'margin-left': '25px', "color": "Crimson "})
+                var mid_label2 = $('<label>').html('步骤记录值').css({'margin-left': '2px', "color": "Crimson "})
+                var mid_comp = $('<select>').css({'margin-left': '25px'}).append($('<option>').html('包含').attr('value',1), $('<option>').html('不包含').attr('value',2)).attr('id','text_comp_contain_'.concat(id))
+                var text_rec = $('<select>').css({'margin-left': '25px'}).append($('<option>').html('无').addClass('selected').attr('value', 0)).attr('id', 'text_comp_step_'.concat(id)).addClass('text_comp_step')
+                for (var i = 0; i < id - 1; i++) {
+                    if (step_midval[i] == 1) {
+                        text_rec.append($('<option>').attr('value', (i + 1).toString()).html((i + 1).toString()))
+                    }
+                    {#text_rec.append($('<option>').attr('value',(parseInt(Text_array[i])+1).toString()).html(parseInt(Text_array[i]) + 1))#}
+                }
+                {#text_rec.children().last().remove()#}
+                $(this).parent().append(mid_label, mid_comp, text_rec, mid_label2)
+            }
+        }else if($(this).get(0).selectedIndex==1){
+            record_type = $(this).parent().prev().children().first().next().val()
+            if(Icon_count==1 || record_type!='2'){
+                 $(this).nextAll().remove()
+                 console.log('zhiyou1icon',Text_count)
+                 //禁用位置比较
+                 $("#mid_comp_".concat(id)).children().first().next().attr('disabled','true')
+                 $("#mid_comp_".concat(id)).val('无')
+                  $("#mid_comp_".concat(id)).nextAll().remove()
+              }else {
+                $(this).nextAll().remove()
+                //选中文字比较
+                var mid_label = $('<label>').html('本步骤记录值').css({'margin-left': '25px', "color": "Crimson "})
+                var mid_label2 = $('<label>').html('步骤记录值').css({'margin-left': '2px', "color": "Crimson "})
+                var mid_comp = $('<select>').css({'margin-left': '25px'}).append( $('<option>').html('左侧于').attr('value',1)
+                    , $('<option>').html('右侧于').attr('value',2), $('<option>').html('上于').attr('value',3), $('<option>').html('下于').attr('value',4)).attr('id','icon_comp_contain_'.concat(id))
+                var text_rec = $('<select>').css({'margin-left': '25px'}).append($('<option>').html('无').addClass('selected').attr('value', 0)).attr('id', 'pos_comp_step_'.concat(id)).addClass('pos_comp_step')
+
+                for (var i = 0; i < id - 1; i++) {
+                    if (step_midval[i] == 2) {
+                        text_rec.append($('<option>').attr('value', (i + 1).toString()).html((i + 1).toString()))
+                    }
+                    {#text_rec.append($('<option>').attr('value',(parseInt(Text_array[i])+1).toString()).html(parseInt(Text_array[i]) + 1))#}
+                }
+                {#text_rec.children().last().remove()#}
+                $(this).parent().append(mid_label, mid_comp, text_rec, mid_label2)
+            }
+        }else if($(this).get(0).selectedIndex==2) {
+            $(this).nextAll().remove()
+        }
+
+     })
+    var id_list = ['manu_sel_','rec_sel_','mid_sel_','mid_comp_','desc_','point_x_','point_y_',
+    'start_x_','start_y_','end_x_','end_y_','appname_','sds_','wait_','left_x_', 'left_y_', 'right_x_', 'right_y_','text_recognize_contain_','text_recognize_comp_',
+    'rec_left_x_','rec_right_x_', 'rec_right_y_','popup_action_','icon_recognize_contain_', 'icon_recognize_' ,'rec_pos_kind_','rec_pos_text_','rec_pos_icon_',
+        'text_comp_contain_', 'icon_comp_contain_', 'text_comp_step_','pos_comp_step_','manu_pos_text_','manu_pos_icon_','manu_pos_kind_','loop_type_']
+    $('#add_func').click(function () {
+        var step_num = step_midval.length
+        alert('总共有'+step_num+'步')
+        var formdata = new FormData();
+        formdata.append('csrfmiddlewaretoken',$("[name='csrfmiddlewaretoken']").val())
+        formdata.append('step_num',step_num)
+        formdata.append('case_name',$('#id_name').val())
+        formdata.append('case_desc',$('#id_desc').val())
+        formdata.append('case_id','{{ case_id_new }}')
+        formdata.append('feature_id','{{ id }}')
+        formdata.append('case_status','1')
+
+
+
+        for(var i=1;i<=step_num;i++){
+
+
+                for(j in id_list){
+                    if($('#'.concat(id_list[j]).concat(i)).val()) {
+                        formdata.append(id_list[j].concat(i), $('#'.concat(id_list[j]).concat(i)).val());
+                    }
+                }
+            }
+
+
+
+
+
+        $.ajax({
+            url:"",
+            type:"post",
+            contentType:false,
+            processData: false,
+            data:formdata
+
+
+        })
+    })
+
+    $('#veri').click(function () {
+
+    })
+</script>

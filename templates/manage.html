@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="/static/bs/css/bootstrap.css">
+    <style>
+        .container{
+            margin-top: 100px
+        }
+        .btn{
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+
+        <div class = "col-md-8 col-md-offset-2">
+        <h2>审批申请用户</h2>
+                <table class="table table-bordered">
+                    <thead>
+                    <tr><th>序号</th>
+                    <th>用户名称</th>
+                    <th>申请时间</th>
+                    <th>邮箱</th>
+                    <th>电话</th>
+                    <th>审批操作</th>
+                    <th>删除操作</th></tr>
+                    </thead>
+                    {% for user in User_Unauth %}
+                        <tr>
+                        <td>{{ forloop.counter}}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.creatime| date:'y-m-d H:i' }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.telephone }}</td>
+                        <td>
+                            <a class="btn btn-success" href="/auth_user/{{user.nid}}">审批</a>
+                        </td>
+                        <td>
+                            <a class="btn btn-warning" href="/delete_user/{{book.nid}}">拒绝</a>
+                        </td>
+                        </tr>
+                    {% endfor %}
+
+
+                </table>
+{#                <a href="/addbook" class="btn btn-success">添加书籍</a>#}
+{#                <a href="/add" class="btn btn-success">添加作者</a>#}
+{#                <a href="/add" class="btn btn-success">添加出版社</a>#}
+        </div>
+
+    </div>
+
+
+ <div class="row">
+
+        <div class = "col-md-8 col-md-offset-2">
+        <h2>管理所有用户</h2>
+                <table class="table table-bordered">
+                    <thead>
+                    <tr><th>序号</th>
+                    <th>用户名称</th>
+                    <th>申请时间</th>
+                    <th>邮箱</th>
+                    <th>电话</th>
+                    <th>模块权限</th>
+                    <th>审批操作</th>
+                    <th>删除操作</th></tr>
+                    </thead>
+                    {% for user in User_Auth %}
+                        <tr>
+                        <td>{{ forloop.counter}}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.creatime| date:'y-m-d H:i' }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.telephone }}</td>
+                        <td></td>
+                        <td>
+                            <a class="btn btn-success" href="/auth_user/{{user.nid}}">重置密码</a>
+                        </td>
+                        <td>
+                            <a class="btn btn-warning" href="/delete_user/{{user.nid}}">删除</a>
+                        </td>
+                        </tr>
+                    {% endfor %}
+
+
+                </table>
+{#                <a href="/addbook" class="btn btn-success">添加书籍</a>#}
+{#                <a href="/add" class="btn btn-success">添加作者</a>#}
+{#                <a href="/add" class="btn btn-success">添加出版社</a>#}
+        </div>
+
+    </div>
+
+</div>
+</body>
+</html>

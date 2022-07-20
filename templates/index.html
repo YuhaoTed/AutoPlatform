@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>测试中心自动化测试管理平台</title>
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+{#<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">#}
+<link rel="stylesheet" href="/static/bs/css/bootstrap.css">
+<link rel="stylesheet" href="/static/bs/css/bootstrap.min.css">
+<style>
+    .error{
+            color: red;
+        }
+    .topbar{
+        background-color: #2e6da4;
+        color: white
+    }
+    td{
+        text-align: center;
+    }
+    th{
+        text-align: center;
+
+    }
+</style>
+<!-- 可选的 Bootstrap 主题文件（一般不用引入） -->
+{#<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap-theme.min.css" integrity="sha384-6pzBo3FDv/PJ8r2KRkGHifhEocL+1X2rVCTTkUfGk7/0pbek5mMa1upzvWbrUbOZ" crossorigin="anonymous">#}
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
+{#   <script src="/static/bs/js/jquery-3.6.0.min.js" ></script>#}
+{#    <script src="/static/bs/js/bootstrap.js" ></script>#}
+{#    <script src="/static/bs/js/bootstrap.min.js" ></script>#}
+
+</head>
+<body>
+<!-- 导航栏 -->
+<nav class="navbar navbar-default" >
+  <div class="container-fluid topbar" >
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#" style="font-size: 22px;color: white">VC16自动化测试管理平台</a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+
+
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="#" style="color: white">{{ request.user.username }}</a></li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" style="color: white">下拉操作 <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="#">修改密码</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="#">注销</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+    <!-- 左侧导航栏 -->
+        <div class="col-md-2 ">
+            <div class="panel panel-primary">
+                <div class="panel-body" style="font-weight: bold">
+                    <span class="glyphicon glyphicon-tasks" style="vertical-align: -2px"></span>
+                    自动化测试用例集
+                </div>
+                <div class="panel-footer"><a href="/index">测试用例集</a></div>
+                <div class="panel-footer">我的测试用例</div>
+            </div>
+            <div class="panel panel-success">
+                <div class="panel-body" style="font-weight: bold">
+                    <span class="glyphicon glyphicon-hourglass" style="vertical-align: -2px"></span>
+                    测试用例执行配置
+                </div>
+                <div class="panel-footer">Panel footer</div>
+            </div>
+            <div class="panel panel-warning">
+                <div class="panel-body" style="font-weight: bold">
+                    <span class="glyphicon glyphicon-globe" style="vertical-align: -2px"></span>
+                    测试用例执行结果
+                </div>
+                <div class="panel-footer">Panel footer</div>
+            </div>
+        </div>
+    <!-- 右侧数据 -->
+        <div class="col-md-9">
+            <div class="page-header">
+                <h2>测试用例集 </h2>
+            </div>
+        <!-- 两个按钮 -->
+            <div class="btn-group pull-right">
+            <button type="button" class="btn btn-default" style="margin-right: 10px;width: 120px" id="add_func" data-toggle="modal" data-target="#myModal">添加模块</button>
+              <!-- 模态框（Modal） -->
+            <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                            <h4 class="modal-title" id="myModalLabel">增加功能模块</h4>
+                        </div>
+                        <div class="modal-body">
+                            <form id="form">
+                                {% csrf_token %}
+                                {% for Function in form %}
+                                    <div class="form-group">
+                                        <label for="user">{{ Function.label }}</label>
+                                        {{ Function }}<span class="error pull-right"></span>
+                                    </div>
+
+                                {% endfor %}
+
+                                <div class="form-group">
+                                    <label for="user">对应项目</label>
+                                    <select class="form-control" id="func_project">
+                                      {% for Projext in Projext_list %}
+                                           <option>{{ Projext.name }}</option>
+                                      {% endfor %}
+                                    </select>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <span class="error pull-left" id="error_function_all"></span>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                            <button type="button" class="btn btn-primary" id="add_function">提交更改</button>
+                        </div>
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal -->
+            </div>
+
+                <button type="button" class="btn btn-default dropdown-toggle " style="width: 120px" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                项目筛选 <span class="caret"></span>
+
+              </button>
+              <ul class="dropdown-menu ">
+                  {% for Projext in Projext_list %}
+                       <li><a class="btn btn-link" href="/index/?project={{Projext.nid}}">{{ Projext.name }}</a>
+                  {% endfor %}
+
+              </ul>
+
+            </div>
+        <!-- 表格数据 -->
+            <table class="table" style="margin-top: 70px">
+                <thead>
+                    <tr><th>序号</th>
+                    <th>功能名字</th>
+                    <th>项目</th>
+                    <th>创建人</th>
+                    <th>用例数目</th>
+                    <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for function in Function_list %}
+                        <tr>
+                        <td>{{ forloop.counter}}</td>
+                        <!-- 功能按钮 -->
+                        <td style="padding-top: 2px">
+                            <form id="functionform">
+                                {% csrf_token %}
+                            </form>
+                            <button class="btn btn-link btn-function" data-toggle="modal" data-target="#FunctionModal" id="{{ function.4 }}_function">{{ function.0}}</button>
+                          <!-- 模态框（Modal） -->
+                        <div class="modal fade" id="FunctionModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" style="width: 80%" >
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                        <h3 class="modal-title" id="myModalLabel">{{ function.1 }}项目：{{ function.0 }}测试用例集</h3>
+                                    </div>
+                                    <div class="modal-body" style="height: 600px">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                <th></th>
+                                                <th>Feature名称</th>
+                                                <th></th>
+                                                <th>创建人</th>
+                                                <th>用例数目</th>
+                                                <th>状态</th>
+                                                <th>操作</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="FeatureBody">
+
+                                            </tbody>
+                                        </table>
+
+
+                                    </div>
+                                    <div class="modal-footer">
+                                        <span class="error pull-left" id="error_function_all"></span>
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                        <button type="button" class="btn btn-primary" id="add_function">提交更改</button>
+                                    </div>
+                                </div><!-- /.modal-content -->
+                            </div><!-- /.modal -->
+                        </div></td>
+                        <td>{{ function.1 }}</td>
+                        <td>{{ function.2 }}</td>
+                        <td><span class="badge">{{ function.3 }}</span></td>
+                        <td>
+
+                            <a class="btn btn-link" id="del_function" href="/delete_function/{{ function.4 }}/?next={{ request.get_full_path }}" onclick="javascript:return del_func()"><span class="glyphicon glyphicon-trash">删除</span></a>
+                            <a class="btn btn-link " id="upd_function"><span class="glyphicon glyphicon-pencil">修改</span></a>
+                        {% if request.user.username != function.2 %}
+                            <script>
+                                $("#del_function").addClass('disabled')
+                                $("#upd_function").addClass('disabled')
+                            </script>
+                        {% endif %}
+                        </td>
+                        </tr>
+
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</div>
+</body>
+<script>
+    $("#add_function").click(function () {
+        var formdata = new FormData();
+        var request_data = $("#form").serializeArray()
+        $.each(request_data,function (index,data) {
+            formdata.append(data.name,data.value);
+        })
+        formdata.append('project',$('#func_project').val())
+        $.ajax({
+            url:"/Function_add/",
+            type:"post",
+            contentType:false,
+            processData: false,
+            data:formdata,
+            success:function (data){
+                {#location.href=this.url#}
+                if (data.ret){
+                    {#注册成功#}
+                    $('#myModal').modal('hide')
+                    window.location.reload()
+                }else{
+
+                    console.log(data.msg)
+                    $.each(data.msg,function (field,error) {
+                        if(field=='all'){
+                            $("#error_function_all").html(error[0])
+                        }
+                        $('#id_'+field).next().html(error[0])
+                    })
+
+                }
+
+
+            }
+        })
+    })
+    {#在function后面添加modal#}
+    $(".btn-function").click(function () {
+        var id = this.id.split('_')[0]
+        var formdata = new FormData();
+        $('#FeatureBody').empty()
+        formdata.append('csrfmiddlewaretoken',$("[name='csrfmiddlewaretoken']").val())
+        formdata.append("functionid",id)
+        $.ajax({
+            url:"/FeatureList/",
+            type:"post",
+            contentType:false,
+            processData: false,
+            data:formdata,
+            success:function (data){
+                data_ret = JSON.parse(data)
+                console.log(data_ret)
+
+                for (i in data_ret){
+
+                    var tr = $("<tr>").attr('id','row_'.concat(i))
+                    tr.append(($('<td>')))
+
+                    tr.append($('<td>').html(data_ret[i][0].concat('/').concat(data_ret[i][1])))
+                    tr.append($('<td>'))
+                    tr.append($('<td>').html(data_ret[i][2]))
+                    tr.append($('<td>').html(data_ret[i][3]))
+                    tr.append($('<td>'))
+                    tr.append($('<td>'))
+                    var btn_xiala = $('<span>').addClass('xiala glyphicon glyphicon-chevron-right btn btn-link').attr('id','xiala_'.concat(data_ret[i][4]))
+                    tr.children().first().append(btn_xiala)
+                    var del_span = $('<span>').addClass("glyphicon glyphicon-trash").html('删除')
+                    var update_span = $('<span>').addClass("glyphicon glyphicon-pencil").html('编辑')
+                    var add_span = $('<span>').addClass("glyphicon glyphicon-plus").html('添加')
+                    var btn = $("<btn>").addClass('btn btn-link').append(del_span)
+                    var btn2 = $("<btn>").addClass('btn btn-link').append(update_span)
+                    var btn3 = $("<btn>").addClass('btn btn-link add_case').attr('id','add_case_'.concat(data_ret[i][4])).append(add_span)
+
+                    tr.children().last().append(btn,btn2,btn3)
+                    $('#FeatureBody').append(tr)
+                }
+            }
+        })
+    })
+    $(document).on("click",'.xiala',function () {
+        var tr_line = $(this).parentsUntil('tbody')[1]
+        var id = this.id.split('_')[1]
+        console.log(id)
+        if($(this).hasClass('glyphicon-chevron-right')) {
+            this.removeAttribute('class', 'glyphicon glyphicon-chevron-right')
+            this.setAttribute('class', 'xiala glyphicon glyphicon-chevron-down btn btn-link')
+
+            $.ajax({
+                    url:"/CaseList/",
+                    type:"post",
+                    data:{
+                        "id":id,
+                        'csrfmiddlewaretoken':$("[name='csrfmiddlewaretoken']").val()
+                    },
+                    success:function (data) {
+
+                        CaseList = JSON.parse(data)
+                        for (i in CaseList){
+                            var tr_new = $('<tr>').addClass('tr_newline_'.concat(id))
+
+                            tr_new.append($('<td>'))
+                            tr_new.append($('<td>'))
+                            //var td_span = $('<td>').append($('<span>').addClass('glyphicon glyphicon-th-list')).html()
+                            tr_new.append($('<td>').append($('<span>').addClass('glyphicon glyphicon-th-list btn btn-link').html(CaseList[i][0].concat(':').concat(CaseList[i][3]).concat(':').concat(CaseList[i][1]))).css('text-align','left'))
+                            tr_new.append($('<td>'))
+                            tr_new.append($('<td>'))
+                            {#状态#}
+                            if(CaseList[i][2]==0){
+                                var span_status = $('<span>').addClass('label label-danger').html('未同步')
+
+                            }else if(CaseList[i][2]==1){
+                                var span_status = $('<span>').addClass('label label-warning').html('已同步')
+                            }else if(CaseList[i][2]==2){
+                                var span_status = $('<span>').addClass('label label-success').html('执行成功')
+                            }
+                            tr_new.append($('<td>').append(span_status))
+
+                            var del_span = $('<span>').addClass("glyphicon glyphicon-trash").html('删除')
+                            var update_span = $('<span>').addClass("glyphicon glyphicon-pencil").html('编辑')
+                            var btn = $("<btn>").addClass('btn btn-link').append(del_span)
+                            var btn2 = $("<btn>").addClass('btn btn-link').append(update_span)
+
+                            tr_new.append($('<td>').append(btn,btn2))
+                            console.log(tr_new)
+                            $(tr_line).after(tr_new)
+                        }
+
+                    }
+                }
+            )
+
+        }else{
+            this.removeAttribute('class', 'glyphicon glyphicon-chevron-down')
+            this.setAttribute('class', 'xiala glyphicon glyphicon-chevron-right btn btn-link')
+            tmp_class = ".tr_newline_".concat(id)
+            $("tr").remove(tmp_class)
+        }
+    })
+
+    {#添加Case的btn#}
+    $(document).on('click','.add_case',function (){
+        console.log(this.id.split('_')[2])
+        location.href = '/addcase/'.concat(this.id.split('_')[2])
+    })
+</script>
+
+<script>
+function del_func(){
+	const ans = confirm("确认要删除？所有测试用例均会被删除");
+	if (ans===false) {
+
+       return false;
+    }else{
+    	alert("删除成功")
+    	return true
+    }
+
+}
+</script>
+
+</html>
